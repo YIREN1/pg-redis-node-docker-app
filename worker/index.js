@@ -13,7 +13,16 @@ function fib(index) {
   return fib(index - 1) + fib(index - 2);
 }
 
+sub.on('connect', () => {
+  console.log('worker redis connected');
+})
+
+sub.on('error', (err) => {
+  console.error(`redis connection failed: ${err}`);
+})
+
 sub.on('message', (channel, message) => {
+  console.log(`message received: ${channel} : ${message}`);
   redisClient.hset('values', message, fib(parseInt(message)));
 });
 sub.subscribe('insert');
