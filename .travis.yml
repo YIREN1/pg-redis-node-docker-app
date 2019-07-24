@@ -1,0 +1,22 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t jamesren11/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run jamesren11/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t jamesren11/core-client ./client
+  - docker build -t jamesren11/core-nginx ./nginx
+  - docker build -t jamesren11/core-api ./server
+  - docker build -t jamesren11/core-worker ./worker
+  # Login to docker hub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # takes those images and push them to docker hub
+  - docker push jamesren11/core-client
+  - docker push jamesren11/core-nginx
+  - docker push jamesren11/core-api
+  - docker push jamesren11/core-worker
